@@ -1,0 +1,12 @@
+#!bin/bash
+
+cd /tmp
+wget http://launchpadlibrarian.net/153822081/ganglia-monitor_3.6.0-1ubuntu2_amd64.deb http://launchpadlibrarian.net/144721515/libapr1_1.4.8-1ubuntu1_amd64.deb http://launchpadlibrarian.net/153554145/libc6_2.17-93ubuntu4_amd64.deb libconfuse0_2.7-4_amd64.deb http://launchpadlibrarian.net/76849127/libconfuse-common_2.7-4_all.deb http://launchpadlibrarian.net/153822085/libganglia1_3.6.0-1ubuntu2_amd64.deb http://launchpadlibrarian.net/133701455/libpcre3_8.31-2_amd64.deb http://launchpadlibrarian.net/141646331/sysv-rc_2.88dsf-41ubuntu3_all.deb http://launchpadlibrarian.net/139766292/zlib1g_1.2.8.dfsg-1ubuntu1_amd64.deb http://launchpadlibrarian.net/76849684/libconfuse0_2.7-4_amd64.deb http://launchpadlibrarian.net/123124449/multiarch-support_2.13-20ubuntu5.3_amd64.deb http://launchpadlibrarian.net/156644403/libgcc1_4.8.1-10ubuntu9_amd64.deb http://launchpadlibrarian.net/156644402/gcc-4.8-base_4.8.1-10ubuntu9_amd64.deb http://launchpadlibrarian.net/142264855/libuuid1_2.20.1-5.1ubuntu9_amd64.deb
+dpkg -i multiarch-support_2.13-20ubuntu5.3_amd64.deb
+rm multiarch-support_2.13-20ubuntu5.3_amd64.deb
+dpkg -i *.deb
+
+
+
+
+
