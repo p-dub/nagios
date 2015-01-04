@@ -5,7 +5,7 @@ wget http://launchpadlibrarian.net/153822081/ganglia-monitor_3.6.0-1ubuntu2_amd6
 dpkg -i multiarch-support_2.13-20ubuntu5.3_amd64.deb
 rm multiarch-support_2.13-20ubuntu5.3_amd64.deb
 dpkg -i *.deb
-
+apt-get -f install
 
 
 
