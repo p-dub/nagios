@@ -1,0 +1,19 @@
+#!/bin/bash
+#       This will install NRPE server
+#       
+#       
+#cd /tmp/
+echo installing NRPE
+#git clone https://github.com/NagiosEnterprises/nrpe.git
+cd nrpe
+./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu/  ### note this might be different for you  ###
+make all
+make install
+make install-plugin
+make install-daemon
+make install-daemon-config
+cp init_script.conf /etc/init/nrpe.conf
+updatedb
+locate nrpe
+locate nrpe.cfg
+echo NRPE Installed....

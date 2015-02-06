@@ -1,0 +1,28 @@
+#!/bin/bash
+### installs nagios server ##
+sudo useradd nagios
+sudo groupadd nagcmd
+sudo usermod -a -G nagcmd nagios
+cd /nagios.core.408
+./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/sbin/sendmail
+make all
+make install
+make install-init
+make install-config
+make install-commandmode
+make install-webconf
+echo copying event handlers
+cp -rvf contrib/eventhandlers/ /usr/local/nagios/libexec/
+chown -R nagios:nagios /usr/local/nagios/libexec/eventhandlers
+echo copying init script
+cp ../nagios_init.conf /etc/init/nagios.conf  ### make that script
+a2enmod rewrite
+a2enmod cgi
+htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+echo restarting apache
+service apache2 restart
+echo starting nagios....
+service nagios start
+wait 10
+chmod 666 /usr/local/nagios/var/rw/nagios.cmd
+echo Nagios installed!!!!!

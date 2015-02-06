@@ -1,0 +1,18 @@
+#!/bin/bash
+#           This installs nagios plugins and drops them in 
+#
+#          /usr/local/nagios/libexec/
+#
+#
+echo Installing Nagios plugins.....
+#cd /tmp/
+#wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
+#tar -xvzf nagios-plugins-2.0.3.tar.gz
+cd nagios.plugins.203/
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+make
+make install
+cp check_mem /usr/local/nagios/libexec/
+echo nagios plugins installed 
+
+
