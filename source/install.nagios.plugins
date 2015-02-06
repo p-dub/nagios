@@ -5,6 +5,8 @@
 #
 #
 echo Installing Nagios plugins.....
+sudo useradd nagios
+sudo groupadd nagcmd
 #cd /tmp/
 #wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
 #tar -xvzf nagios-plugins-2.0.3.tar.gz
