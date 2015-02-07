@@ -1,0 +1,176 @@
+#---
+#--- Top level Makefile for check_multi
+#---
+#--- $Id$
+#---
+
+#---
+#--- Src directories
+SRC_PLUGINS=@srcdir@/plugins
+SRC_PL_TEST=@srcdir@/plugins/t
+SRC_CONTRIB=@srcdir@/contrib
+SRC_CONFIG=@srcdir@/sample_config
+
+#---
+#--- user settings
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+CFGDIR=@sysconfdir@
+LIBEXECDIR=@libexecdir@
+DATADIR=@datarootdir@
+CGIDIR=@sbindir@
+
+INSTALL=@INSTALL@
+VERSION=$(shell cut -d'_' -f 3 CM_VERSION | tr -d v)
+
+@SET_MAKE@
+
+#---
+#--- none: make without option shows help
+none:
+	@echo ""
+	@echo " make"
+	@echo ""
+	@echo " all               do all subsequent options except install"
+	@echo ""
+	@echo " plugins           create plugins"
+	@echo " config            sample configuration"
+	@echo " contrib           generate all contrib files"
+	@echo " test              test plugins"
+	@echo ""
+	@echo " test              run test scripts for plugins"
+	@echo " test-all          run test scripts for all"
+	@echo ""
+	@echo ""
+	@echo " install           install check_multi plugin"
+	@echo " install-plugins   install check_multi plugin"
+	@echo " install-contrib   install contribution files"
+	@echo " install-config    install sample config"
+	@echo ""
+	@echo " fullinstall       install everything"
+	@echo ""
+
+#---
+#--- combination of all targets
+all:
+	@ cd $(SRC_PLUGINS) && $(MAKE) -s -e $@
+	@ cd $(SRC_PL_TEST) && $(MAKE) -s -e $@
+	@ cd $(SRC_CONTRIB) && $(MAKE) -s -e $@
+	@ cd $(SRC_CONFIG)  && $(MAKE) -s -e $@
+	$(MAKE) hook
+
+	@echo ""
+	@echo " Make process finished"
+	@echo ""
+	@echo " *** Next step:  make test ***"
+	@echo ""
+	@echo "            or:  make test-all           (for all tests)"
+	@echo "            or:  make test-checkresults"
+	@echo "            or:  make test-extreme       (random tag and macro values)"
+	@echo "            or:  make test-feeds-passive (requires Perl module XML::Simple)"
+	@echo "            or:  make test-livestatus    (requires livestatus module and Perl Module Monitoring::Livestatus)"
+	@echo "            or:  make test-history"
+	@echo "            or:  make test-macros"
+	@echo "            or:  make test-perfdata"
+	@echo "            or:  make test-statusdat"
+	@echo ""
+	@echo " *** and then:   make install ***"
+	@echo ""
+	@echo "     - This installs the check_multi plugin"
+	@echo ""
+
+
+#---
+#--- here the different subsections follow
+contrib:
+	@ cd $(SRC_CONTRIB) && $(MAKE) -e $@
+
+config:
+	@ cd $(SRC_CONFIG)  && $(MAKE) -e $@
+
+plugins:
+	@ cd $(SRC_PLUGINS) && $(MAKE) -e $@
+
+
+test-all:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-standard:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-history:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-macros:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-perfdata:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-checkresults:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-feeds-passive:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-livestatus:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-statusdat:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-extreme:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-timeout:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+test-test:
+	@ cd $(SRC_PL_TEST)  && $(MAKE) -e $@
+hook:
+	@ test -d .git && test -h .git/hooks/pre-commit || ( cd .git/hooks; rm -f pre-commit; ln -s ../../mk_VERSION pre-commit )
+
+#---
+#--- install sections
+install:
+	@ cd $(SRC_PLUGINS) && $(MAKE) -e $@
+
+	@echo ""
+	@echo "Please run 'make install-contrib' to install contrib files"
+	@echo "Please run 'make install-config'  to install sample config files"
+	@echo ""
+
+install-contrib:
+	@ cd $(SRC_CONTRIB) && $(MAKE) -e $@
+
+install-config:
+	@ cd $(SRC_CONFIG) && $(MAKE) -e $@
+
+install-plugins:
+	@ cd $(SRC_PLUGINS) && $(MAKE) -e $@
+
+
+fullinstall: install-plugins install-contrib install-config
+
+#---
+#--- cleanup sections
+clean:
+	@ cd $(SRC_PLUGINS) && $(MAKE) -e $@
+	@ cd $(SRC_PL_TEST) && $(MAKE) -e $@
+	@ cd $(SRC_CONTRIB) && $(MAKE) -e $@
+	@ cd $(SRC_CONFIG)  && $(MAKE) -e $@
+	#-rm -f *.cfg core
+	#-rm -f *~ *.*~ */*~ */*.*~
+	@ -rm -rf autom4te.cache
+	@ $(MAKE) -e distclean
+
+distclean: 
+	@ cd $(SRC_PLUGINS) && $(MAKE) -e $@
+	@ cd $(SRC_PL_TEST) && $(MAKE) -e $@
+	@ cd $(SRC_CONTRIB) && $(MAKE) -e $@
+	@ cd $(SRC_CONFIG)  && $(MAKE) -e $@
+	@ -rm -f Makefile config.status config.log subst
+
+devclean: distclean
+
+version:
+	NEWVERSION=$$(dialog --stdout --inputbox "New Version:" 0 0 "$(VERSION)"); \
+	if [ -n "$$NEWVERSION" ] && [ "$$NEWVERSION" != "$(VERSION)" ]; then \
+		sed -i "s/===== Changelog =====[\n\t]*/===== Changelog =====\n\n**$$NEWVERSION**\t$(shell date)/m" Changelog; \
+		sed -i "s/$(VERSION)/$$NEWVERSION/" CM_VERSION configure.ac ;\
+	fi
+#$(MAKE) docs
+
+
+

@@ -1,0 +1,145 @@
+#!/bin/sh
+#
+# HTML service notification script
+#
+# Copyright (c) 2007-8 Matthias Flacke (matthias.flacke at gmx.de)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# -----------------------------------------------------------------------------------
+# !!! Read this first !!!
+#
+# - You need a special mailx version for this script which allows 
+#   to send MIME attachments. (e.g. http://heirloom.sourceforge.net/mailx.html)
+# 
+# - This script makes extensive use of Nagios environment variables
+#   They have to be enabled in nagios.cfg: enable_environment_macros=1
+# 
+# - The notification command is therefore very simple for this script:
+#   define command{
+#      command_name    notify-service-by-email
+#      command_line    /path/to/notify_service_html
+#   }
+# ----------------------------------------------------------------------------------
+#
+MYSELF=`basename $0`
+#
+#--- for debugging: uncomment the following line
+#--- then look into @tmp_dir@ for *stdout.<pid> and *stderr.<pid>
+# set -x
+#
+#--- save stdout / stderr
+exec 1>>"@tmp_dir@/$MYSELF-stdout.$$"
+exec 2>>"@tmp_dir@/$MYSELF-stderr.$$"
+#
+#--- adoptions here ;) if not already fixed by configure ----------------------------
+NAME="[@nagios_name@] <@nagios_name@@@hostname@>";   # sender NAME in mail
+REPLYTO="[@nagios_name@] <@nagios_name@@@hostname@>" # sender NAME in mail
+NAGIOS_URL="http://@hostname@/@nagios_name@"  # URL where Nagios can be found
+NAGIOSDIR="@prefix@"                        # physical path of Nagios installation
+MAILBIN="@MAILX@"                           # path to mail client
+#
+#--- no adoptions necessary from here -----------------------------------------------
+#
+#--- special test: if HTML is included in SERVICEOUTPUT, split this and add it to the attachment later
+#NAGIOS_LONGSERVICEOUTPUT="`echo \"$NAGIOS_SERVICEOUTPUT\" | sed -e 's/(<[Bb][Rr]>)(.*)/\2\1/'`$NAGIOS_LONGSERVICEOUTPUT"
+#NAGIOS_SERVICEOUTPUT=`echo "$NAGIOS_SERVICEOUTPUT" | sed -e 's/(.*)<[Bb][Rr]>/\1/'`
+
+#--- remove images / icons
+NAGIOS_LONGSERVICEOUTPUT="`echo \"$NAGIOS_LONGSERVICEOUTPUT\" | sed -e 's/<img[^>]*>//'`"
+
+#--- 1. create ASCII file
+MAIL_ATTACHMENT_TXT="@tmp_dir@/mailx.$NAGIOS_HOSTNAME.$NAGIOS_SERVICEDESC.txt"
+
+#--- 1a. start mail
+cat <<EOF1 > $MAIL_ATTACHMENT_TXT
+From: $NAME
+Reply-To: $REPLYTO
+To: $NAGIOS_CONTACTEMAIL
+Subject: $NAGIOS_NOTIFICATIONTYPE: Service $NAGIOS_HOSTNAME/$NAGIOS_SERVICEDESC is $NAGIOS_SERVICESTATE
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="boundary-line"
+This is a multi-part message in MIME format.
+--boundary-line
+Content-Type: text/plain
+Nagios service notification
+$NAGIOS_NOTIFICATIONTYPE $NAGIOS_SERVICEDESC $NAGIOS_SERVICESTATE
+$NAGIOS_LONGDATETIME
+--boundary-line
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+EOF1
+
+#--- 1b. add stylesheets inline
+#cat $NAGIOSDIR/share/stylesheets/common.css >> $MAIL_ATTACHMENT_TXT
+#cat $NAGIOSDIR/share/stylesheets/extinfo.css >> $MAIL_ATTACHMENT_TXT
+
+#--- 1c. continue mail
+cat <<EOF2 >> $MAIL_ATTACHMENT_TXT
+<div>
+<a href=" ${NAGIOS_URL}/cgi-bin/extinfo.cgi?type=2&host=${NAGIOS_HOSTNAME}&service=${NAGIOS_SERVICEDESC} " target="_blank" style="text-decoration:none;">${NAGIOS_SERVICEOUTPUT}</a>
+<br/>
+<div>${NAGIOS_LONGSERVICEOUTPUT}</div><a>
+</div>
+--boundary-line
+Content-Type: text/plain
+
+$NAGIOS_NOTIFICATIONTYPE $NAGIOS_SERVICEDESC $NAGIOS_SERVICESTATE
+$NAGIOS_LONGDATETIME
+
+--- Service information --------------------------
+Service desccription   $NAGIOS_SERVICEDESC
+Service state          $NAGIOS_SERVICESTATE
+State type             $NAGIOS_SERVICESTATETYPE
+Service output         $NAGIOS_SERVICEOUTPUT
+Check command          $NAGIOS_SERVICECHECKCOMMAND
+Execution time         $NAGIOS_SERVICEEXECUTIONTIME
+
+--- Service URLs ---------------------------------
+Service details        $NAGIOS_URL/cgi-bin/extinfo.cgi?type=2&host=$NAGIOS_HOSTNAME&service=$NAGIOS_SERVICEDESC
+Service alert history  $NAGIOS_URL/cgi-bin/history.cgi?host=$NAGIOS_HOSTNAME&service=$NAGIOS_SERVICEDESC
+Service availability   $NAGIOS_URL/cgi-bin/avail.cgi?host=$NAGIOS_HOSTNAME&&service=$NAGIOS_SERVICEDESC&show_log_entries
+
+--- Host information -----------------------------
+Hostname               $NAGIOS_HOSTNAME
+Hostalias              $NAGIOS_HOSTALIAS
+IP address             $NAGIOS_HOSTADDRESS
+
+--- Host URLs ------------------------------------
+Host details           $NAGIOS_URL/cgi-bin/extinfo.cgi?type=1&host=$NAGIOS_HOSTNAME
+Host services          $NAGIOS_URL/cgi-bin/status.cgi?host=$NAGIOS_HOSTNAME
+Host alert history     $NAGIOS_URL/cgi-bin/history.cgi?host=$NAGIOS_HOSTNAME
+Host availability      $NAGIOS_URL/cgi-bin/avail.cgi?host=$NAGIOS_HOSTNAME&show_log_entries
+
+--- Contact information --------------------------
+Contact name           $NAGIOS_CONTACTNAME
+Contact alias          $NAGIOS_CONTACTALIAS
+Mail address           $NAGIOS_CONTACTEMAIL
+Notification type      $NAGIOS_NOTIFICATIONTYPE
+--boundary-line
+EOF2
+
+#--- 2. LONGSERVICEOUTPUT available? put it into HTML MIME attachment and send it
+cat "$MAIL_ATTACHMENT_TXT" | $MAILBIN 
+
+RC=$?	# catch RC
+#
+#--- 4. cleanup if everything ok, in case of error files will remain for debugging
+if [ $RC -eq 0 ]; then
+        #rm -f "$MAIL_ATTACHMENT_TXT"
+        rm -f @tmp_dir@/${MYSELF}-*$$
+fi
+echo "`date` $NAGIOS_HOSTNAME.$NAGIOS_SERVICEDESC $NAGIOS_NOTIFICATIONTYPE: Service $NAGIOS_HOSTNAME/$NAGIOS_SERVICEDESC is $NAGIOS_SERVICESTATE to $NAGIOS_CONTACTEMAIL: RC $RC" >> /$NAGIOSDIR/var/$MYSELF.log

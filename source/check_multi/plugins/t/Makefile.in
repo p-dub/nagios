@@ -1,0 +1,73 @@
+#---
+#--- Makefile plugins/t
+#---
+#--- $Id$
+#---
+prefix=@prefix@
+HTMLDIR=@datarootdir@
+INSTALL=@INSTALL@
+INSTALL_OPTS=@INSTALL_OPTS@
+PERLOPTS=-MExtUtils::Command::MM -e "test_harness($(VERBOSE))"
+
+all:
+
+clean:
+	-rm -f 10_check_multi.t
+	-rm -f 15_check_multi_history.t
+	-rm -f 20_check_multi_macros.t
+	-rm -f 30_check_multi_perfdata.t
+	-rm -f 50_check_multi_checkresults.t
+	-rm -f 60_check_multi_feeds_passive.t
+	-rm -f 70_check_multi_statusdat.t
+	-rm -f 80_check_multi_livestatus.t
+	-rm -f 90_extreme_tags.t
+	-rm -f 91_extreme_timeout.t
+	-rm -f testopts.pm
+	-rm -rf tmp
+
+distclean: clean
+	-rm -f Makefile
+
+devclean: distclean
+
+test: 
+	@PERL@ $(PERLOPTS) \
+		10_check_multi.t \
+		20_check_multi_macros.t \
+		30_check_multi_perfdata.t
+test-standard:
+	@PERL@ $(PERLOPTS) 10_check_multi.t
+test-history:
+	@PERL@ $(PERLOPTS) 15_check_multi_history.t
+test-macros:
+	@PERL@ $(PERLOPTS) 20_check_multi_macros.t
+test-perfdata:
+	@PERL@ $(PERLOPTS) 30_check_multi_perfdata.t
+test-checkresults:
+	@PERL@ $(PERLOPTS) 50_check_multi_checkresults.t
+test-feeds-passive:
+	@PERL@ $(PERLOPTS) 60_check_multi_feeds_passive.t
+test-statusdat:
+	@PERL@ $(PERLOPTS) 70_check_multi_statusdat.t
+test-livestatus:
+	@PERL@ $(PERLOPTS) 80_check_multi_livestatus.t
+test-tags:
+	@PERL@ $(PERLOPTS) 91_extreme_tags.t
+test-timeout:
+	@PERL@ $(PERLOPTS) 91_extreme_timeout.t
+test-all:
+	@PERL@ $(PERLOPTS) \
+		10_check_multi.t \
+		15_check_multi_history.t \
+		20_check_multi_macros.t \
+		30_check_multi_perfdata.t \
+		50_check_multi_checkresults.t \
+		60_check_multi_feeds_passive.t \
+		70_check_multi_statusdat.t \
+		80_check_multi_livestatus.t
+test-extreme:
+	@PERL@ $(PERLOPTS) \
+		90_extreme_tags.t \
+		91_extreme_timeout.t
+test-test:
+	@PERL@ $(PERLOPTS) 91_extreme_timeout.t

@@ -1,0 +1,48 @@
+#---
+#--- Makefile sample-config
+#---
+#--- $Id$
+#---
+prefix=@prefix@
+LIBEXECDIR=@libexecdir@
+HTMLDIR=@datarootdir@
+INSTALL=@INSTALL@
+INSTALL_OPTS=@INSTALL_OPTS@
+
+all: 
+config:
+	echo "make install-config clean distclean"
+
+clean:
+	cd cluster		&& $(MAKE) -e $@
+	cd feed_passive		&& $(MAKE) -e $@
+	cd multi_long		&& $(MAKE) -e $@
+	cd network_interface	&& $(MAKE) -e $@
+	cd nagiostats		&& $(MAKE) -e $@
+	cd nagios_version	&& $(MAKE) -e $@
+	cd start_process	&& $(MAKE) -e $@
+	cd cumulate		&& $(MAKE) -e $@
+	
+
+distclean: clean
+	cd cluster		&& $(MAKE) -e $@
+	cd feed_passive		&& $(MAKE) -e $@
+	cd multi_long		&& $(MAKE) -e $@
+	cd network_interface	&& $(MAKE) -e $@
+	cd nagiostats		&& $(MAKE) -e $@
+	cd nagios_version	&& $(MAKE) -e $@
+	cd start_process	&& $(MAKE) -e $@
+	cd cumulate		&& $(MAKE) -e $@
+	-rm -f Makefile
+
+devclean: distclean
+
+install-config: 
+	cd cluster		&& $(MAKE) -e $@
+	cd feed_passive		&& $(MAKE) -e $@
+	cd multi_long		&& $(MAKE) -e $@
+	cd network_interface	&& $(MAKE) -e $@
+	cd nagiostats		&& $(MAKE) -e $@
+	cd nagios_version	&& $(MAKE) -e $@
+	cd start_process	&& $(MAKE) -e $@
+	cd cumulate		&& $(MAKE) -e $@

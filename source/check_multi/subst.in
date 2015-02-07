@@ -1,0 +1,256 @@
+#!@PERL@ -w
+
+my $prefix="@prefix@";
+my $exec_prefix="@exec_prefix@";
+
+my $CHMOD="@CHMOD@";
+my $INSTALL="@INSTALL@"; 
+#--- ugly, but I don't know how to handle several subsequent directories.
+#--- if someone has an idea... ;)
+if ($INSTALL=~/^\.\//) {
+	my $pwd=`pwd`; chomp $pwd;
+	$INSTALL="$pwd/$INSTALL";
+}
+my $CM_VERSION=""; 
+if (-f "CM_VERSION") {
+	$CM_VERSION=`cat CM_VERSION`; 
+	chomp $CM_VERSION;
+} else {
+	$CM_VERSION="undetermined";
+}
+my $INSTALL_OPTS="@INSTALL_OPTS@";
+my $MAILX="@MAILX@";
+my $PERL="@PERL@";
+my $action_mouseover="@action_mouseover@";
+my $add_tag_to_list_entries="@add_tag_to_list_entries@";
+my $action_url="@action_url@";
+my $child_interval="@child_interval@";
+my $client_perl="@client_perl@";
+my $nagios_name="@nagios_name@";
+my $cancel_before_global_timeout="@cancel_before_global_timeout@";
+my $child_timeout="@child_timeout@";
+my $collapse=@collapse@;
+my $complain_unknown_macros="@complain_unknown_macros@";
+my $cmdfile_update_interval="@cmdfile_update_interval@";
+my $configure_args="@ac_configure_args@";
+my $cumulate_ignore_zero=@cumulate_ignore_zero@;
+my $cumulate_max_rows=@cumulate_max_rows@;
+my $empty_output_is_unknown=@empty_output_is_unknown@;
+my $ethtool="@ethtool@";
+my $exec_open3=@exec_open3@;
+my $extinfo_in_status=@extinfo_in_status@;
+my $extended_perfdata="@extended_perfdata@";
+my $feed_passive_autocreate=@feed_passive_autocreate@;
+my $feed_passive_dir_permissions="@feed_passive_dir_permissions@";
+my $file_extension="@file_extension@";
+my $findbin=@findbin@;
+my $gunzip="@gunzip@";
+my $history="@history@";
+my $history_maxsize="@history_maxsize@";
+my $history_maxage="@history_maxage@";
+my $history_minvalues="@history_minvalues@";
+my $history_non_numerical_value="@history_non_numerical_value@";
+my $html_ascii_notification="@html_ascii_notification@";
+my $hostname="@hostname@";
+my $ignore_missing_cmd_file="@ignore_missing_cmd_file@";
+my $illegal_chars="@illegal_chars@";
+my $image_path="@image_path@";
+my $indent="@indent@";
+my $indent_label=@indent_label@;
+my $livestatus="@livestatus@";
+my $map_host_down_state_to="@map_host_down_state_to@";
+my $map_host_unreachable_state_to="@map_host_unreachable_state_to@";
+my $name="@name@";
+my $no_checks_rc=@no_checks_rc@;
+my $notes_url="@notes_url@";
+my $objects_cache="@objects_cache@";
+my $objects_cache_delimiter="@objects_cache_delimiter@";
+my $omd_environment=@omd_environment@;
+my $parent_timeout=@parent_timeout@;
+my $perfdata_pass_through=@perfdata_pass_through@;
+my $persistent=@persistent@;
+my $plugin_path="@plugin_path@";
+my $pnp_add2url="@pnp_add2url@";
+my $pnp_url="@pnp_url@";
+my $pnp_version="@pnp_version@";
+my $report="@report@";
+my $report_inherit_mask="@report_inherit_mask@";
+my $service_definition_template="@service_definition_template@";
+my $signal_rc="@signal_rc@";
+my $loose_perfdata="@loose_perfdata@";
+my $snmp_community="@snmp_community@";
+my $snmp_port="@snmp_port@";
+my $style_plus_minus="@style_plus_minus@";
+my $status_dat="@status_dat@";
+my $tag_notes_link="@tag_notes_link@";
+my $target="@target@";
+my $tmp_dir="@tmp_dir@";
+my $tmp_dir_permissions="@tmp_dir_permissions@";
+my $tmp_etc="@tmp_etc@";
+my $use_hard_state="@use_hard_state@";
+my $verbose="@verbose@";
+my $verbose_fields="@verbose_fields@";
+my $ac_configure_args="@ac_configure_args@";
+my $bindir="@bindir@";
+my $checkresults_dir="@checkresults_dir@";
+my $config_dir="@config_dir@";
+my $contrib_dir="@contrib_dir@";
+my $datarootdir="@datarootdir@";
+my $feed_passive_dir="@feed_passive_dir@";
+my $libdir="@libdir@";
+my $libexecdir="@libexecdir@";
+my $localstatedir="@localstatedir@";
+my $sbindir="@sbindir@";
+my $srcdir="@srcdir@";
+my $sysconfdir="@sysconfdir@";
+
+#--- for preparation of MS Windows version of check_multi
+#--- create sample variable conversion script, if not already there
+#--- this script may be edited and changed by the user afterwards
+#--- to adopt the windows version to his needs
+my %windows_variables = (
+	prefix		=> "\\\\\$ENV{PROGRAMFILES}\\\\check_multi",
+	client_perl	=> "c:\\\\strawberry\\\\perl\\\\bin\\\\perl.exe",
+	PERL		=> "c:\\\\strawberry\\\\perl\\\\bin\\\\perl.exe",
+	file_extension	=> "txt",
+	plugin_path	=> "\\\$ENV{PROGRAMFILES}\\\\check_multi\\\\plugins",
+	tmp_dir		=> "\\\$ENV{TEMP}\\\\check_multi",
+	tmp_etc		=> "\\\$ENV{TEMP}\\\\check_multi\\\\etc",
+);
+my $winvar_script="custom_windows_variables.pl";
+if (! -f $winvar_script) {
+	open(WINVAR, ">$winvar_script") || die "Cannot create $winvar_script:$!" ;
+	print WINVAR "#---\n";
+	print WINVAR "#--- windows variable customization\n";
+	print WINVAR "#---\n";
+	print WINVAR "#--- note: backslashes are escaped / doubled\n";
+	print WINVAR "#--- and variables \$var are also escaped!\n";
+	print WINVAR "#---\n";
+	foreach my $w (sort keys %windows_variables) {
+		print WINVAR sprintf "\$%-30s = \"%s\";\n", $w, $windows_variables{$w};
+	}
+	close(WINVAR) || die "Cannot write to $winvar_script:$!";
+}
+
+while (my $f = shift @ARGV) {
+
+	if (-x "/bin/mktemp") { 
+		$TEMP = `/bin/mktemp $f.$$.XXXXXX`;
+		die "Cannot make temporary file $TEMP" if($?);
+		chomp $TEMP;
+	} else {
+		$XXXXXX = rand;
+		$TEMP = "$f.$$.$XXXXXX";
+	}
+
+	##--- source winvar script for windows files
+	if ($f =~ /windows/i) {
+		eval `cat $winvar_script`; 
+		die "Error sourcing $winvar_script: $@" if $@;
+	}
+
+	open(IN,"<$f.in") || die "Cannot open input file $f.in:$!";
+	open(OUT,">${TEMP}") || die "Cannot write to temporary file ${TEMP}:$!";
+
+	while (<IN>) {
+		s|\@CHMOD\@|$CHMOD|g;
+		s|\@CM_VERSION\@|$CM_VERSION|g;
+		s|\@INSTALL\@|$INSTALL|g;
+		s|\@INSTALL_OPTS\@|$INSTALL_OPTS|g;
+		s|\@MAILX\@|$MAILX|g;
+		s|\@PERL\@|$PERL|g;
+		s|\@action_mouseover\@|$action_mouseover|g;
+		s|\@add_tag_to_list_entries\@|$add_tag_to_list_entries|g;
+		s|\@action_url\@|$action_url|g;
+		s|\@cancel_before_global_timeout\@|$cancel_before_global_timeout|g;
+		s|\@child_interval\@|$child_interval|g;
+		s|\@client_perl\@|$client_perl|g;
+		s|\@child_timeout\@|$child_timeout|g;
+		s|\@collapse\@|$collapse|g;
+		s|\@cumulate_ignore_zero\@|$cumulate_ignore_zero|g;
+		s|\@cumulate_max_rows\@|$cumulate_max_rows|g;
+		s|\@cmdfile_update_interval\@|$cmdfile_update_interval|g;
+		s|\@configure_args\@|$ac_configure_args|g;
+		s|\@config_dir\@|$config_dir|g;
+		s|\$\{contrib_dir\}|$contrib_dir|g;
+		s|\@empty_output_is_unknown\@|$empty_output_is_unknown|g;
+		s|\@ethtool\@|$ethtool|g;
+		s|\@exec_open3\@|$exec_open3|g;
+		s|\@extinfo_in_status\@|$extinfo_in_status|g;
+		s|\@extended_perfdata\@|$extended_perfdata|g;
+		s|\@feed_passive_autocreate\@|$feed_passive_autocreate|g;
+		s|\@feed_passive_dir\@|$feed_passive_dir|g;
+		s|\@feed_passive_dir_permissions\@|$feed_passive_dir_permissions|g;
+		s|\@file_extension\@|$file_extension|g;
+		s|\@findbin\@|$findbin|g;
+		s|\@gunzip\@|$gunzip|g;
+		s|\@history\@|$history|g;
+		s|\@history_maxsize\@|$history_maxsize|g;
+		s|\@history_maxage\@|$history_maxage|g;
+		s|\@history_minvalues\@|$history_minvalues|g;
+		s|\@history_non_numerical_value\@|$history_non_numerical_value|g;
+		s|\@html_ascii_notification\@|$html_ascii_notification|g;
+		s|\@hostname\@|$hostname|g;
+		s|\@ignore_missing_cmd_file\@|$ignore_missing_cmd_file|g;
+		s|\@illegal_chars\@|$illegal_chars|g;
+		s|\@indent_label\@|$indent_label|g;
+		s|\@indent\@|$indent|g;
+		s|\@livestatus\@|$livestatus|g;
+		s|\@map_host_down_state_to\@|$map_host_down_state_to|g;
+		s|\@map_host_unreachable_state_to\@|$map_host_unreachable_state_to|g;
+		s|\@name\@|$name|g;
+		s|\@nagios_name\@|$nagios_name|g;
+		s|\@name\@|$name|g;
+		s|\@no_checks_rc\@|$no_checks_rc|g;
+		s|\@notes_url\@|$notes_url|g;
+		s|\@objects_cache\@|$objects_cache|g;
+		s|\@objects_cache_delimiter\@|$objects_cache_delimiter|g;
+		s|\@omd_environment\@|$omd_environment|g;
+		s|\@perfdata_pass_through\@|$perfdata_pass_through|g;
+		s|\@persistent\@|$persistent|g;
+		s|\@pnp_url\@|$pnp_url|g;
+		s|\@pnp_add2url\@|$pnp_add2url|g;
+		s|\@pnp_version\@|$pnp_version|g;
+		s|\@complain_unknown_macros\@|$complain_unknown_macros|g;
+		s|\@report\@|$report|g;
+		s|\@report_inherit_mask\@|$report_inherit_mask|g;
+		s|\@loose_perfdata\@|$loose_perfdata|g;
+		s|\@service_definition_template\@|$service_definition_template|g;
+		s|\@signal_rc\@|$signal_rc|g;
+		s|\@snmp_community\@|$snmp_community|g;
+		s|\@snmp_port\@|$snmp_port|g;
+		s|\@style_plus_minus\@|$style_plus_minus|g;
+		s|\@status_dat\@|$status_dat|g;
+		s|\@tag_notes_link\@|$tag_notes_link|g;
+		s|\@target\@|$target|g;
+		s|\@tmp_dir\@|$tmp_dir|g;
+		s|\@tmp_etc\@|$tmp_etc|g;
+		s|\@tmp_dir_permissions\@|$tmp_dir_permissions|g;
+		s|\@parent_timeout\@|$parent_timeout|g;
+		s|\@use_hard_state\@|$use_hard_state|g;
+		s|\@verbose\@|$verbose|g;
+		s|\@verbose_fields\@|$verbose_fields|g;
+		s|\@sbindir\@|$sbindir|g;		# put all --with-vars before directories
+		s|\@checkresults_dir\@|$checkresults_dir|g;
+		s|\@sysconfdir\@|$sysconfdir|g;
+		s|\@datarootdir\@|$datarootdir|g;
+		s|\@image_path\@|$image_path|g;		
+		s|\@localstatedir\@|$localstatedir|g;
+		s|\@libexecdir\@|$libexecdir|g;	
+		s|\@plugin_path\@|$plugin_path|g;		
+		s|\$\{exec_prefix\}|$exec_prefix|g;	# must be next to last
+		s|\@prefix\@|@prefix@|g;		# must be last
+		s|\$\{prefix\}|@prefix@|g;		# must be last
+		print OUT $_;
+	}
+
+	close IN;
+	close OUT;
+
+	if ((! -e $f) || (`diff $f $TEMP`)) {
+		`mv $TEMP $f`;
+	} else {
+	         unlink $TEMP;
+	}
+
+}
