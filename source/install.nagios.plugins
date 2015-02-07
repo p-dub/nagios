@@ -7,14 +7,15 @@
 echo Installing Nagios plugins.....
 sudo useradd nagios
 sudo groupadd nagcmd
-cd /tmp/
-wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
-tar -xvzf nagios-plugins-2.0.3.tar.gz
-cd nagios-plugins-2.0.3
+#cd /tmp/
+#wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
+#tar -xvzf nagios-plugins-2.0.3.tar.gz
+#cd nagios-plugins-2.0.3
+cd nagios.plugins
 ./configure --with-nagios-user=nagios --with-nagios-group=nagios
 make
 make install
-cp /tmp/nagios/source/check_mem /usr/local/nagios/libexec/
+cp ../check_mem /usr/local/nagios/libexec/
 echo nagios plugins installed 
 
 
