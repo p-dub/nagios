@@ -5,7 +5,8 @@
 #
 #
 echo Installing Nagios plugins.....
-apt-get install build-essential automake libcap2 libmysqlclient18 libnet-snmp-perl libperl5.14 libpq5 libradius1 libsensors4 libsnmp-base libsnmp15 libtalloc2 libtdb1 libwbclient0 mysql-common samba-common samba-common-bin smbclient snmp whois autoconf curl lynx-cur pkg-config -y
+apt-get update
+apt-get install build-essential automake libcap2 libmysqlclient18 libnet-snmp-perl libperl5.14 libpq5 libradius1 libsensors4 libsnmp-base libreadonly-xs-perl libnagios-plugin-perl libsnmp15 libtalloc2 libtdb1 libwbclient0 mysql-common samba-common samba-common-bin smbclient snmp whois autoconf curl lynx-cur pkg-config -y
 sudo useradd nagios
 sudo groupadd nagcmd
 #cd /tmp/
