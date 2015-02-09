@@ -1,7 +1,7 @@
 #!/bin/bash
 ##### nagios server dependencies install   ####
 apt-get update
-apt-get install git wget sendmail build-essential autoconf curl lynx-cur pkg-config apache2 php5 openssl perl make php5-gd wget libgd2-xpm-dev libapache2-mod-php5 libperl-dev libssl-dev daemon apache2-utils htop tcptrack debian-goodies -y
+apt-get install sendmail build-essential autoconf curl lynx-cur pkg-config apache2 php5 openssl perl make php5-gd wget libnagios-plugin-perl libgd2-xpm-dev libnagios-plugin-perl libapache2-mod-php5 libperl-dev libssl-dev daemon apache2-utils htop tcptrack debian-goodies -y
 updatedb
 echo dependencies installed
 
