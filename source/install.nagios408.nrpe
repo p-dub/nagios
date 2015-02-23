@@ -1,0 +1,63 @@
+#!/bin/bash
+##### nagios server install   ####
+apt-get update
+apt-get install wget sendmail build-essential automake autoconf curl lynx-cur pkg-config apache2 php5 openssl perl make php5-gd wget libgd2-xpm-dev libapache2-mod-php5 libperl-dev libssl-dev daemon apache2-utils htop tcptrack debian-goodies libnagios-plugin-perl -y
+updatedb
+sudo useradd nagios
+sudo groupadd nagcmd
+sudo usermod -a -G nagcmd nagios
+cd /tmp
+#git clone https://github.com/NagiosEnterprises/nagioscore.git
+wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.0.8.tar.gz
+cd nagios-4.0.8/
+./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/sbin/sendmail
+make all
+make install
+make install-init
+make install-config
+make install-commandmode
+make install-webconf
+echo copying event handlers
+cp -rvf contrib/eventhandlers/ /usr/local/nagios/libexec/
+chown -R nagios:nagios /usr/local/nagios/libexec/eventhandlers
+echo copying init script
+cp ../init_script.conf /etc/init/nagios.conf  ### make that script
+a2enmod rewrite
+a2enmod cgi
+htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+echo restarting apache
+service apache2 restart
+echo starting nagios....
+service nagios start
+wait 10
+chmod 666 /usr/local/nagios/var/rw/nagios.cmd
+echo installing nagios plugins
+cd /tmp/
+wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
+tar -xvzf nagios-plugins-2.0.3.tar.gz
+cd nagios-plugins-2.0.3/
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+make
+make install
+cd /tmp/nagios/source/
+cp check_mem /usr/local/nagios/libexec/
+echo nagios plugins installed
+cd /tmp/
+echo installing NRPE
+git clone https://github.com/NagiosEnterprises/nrpe.git
+cd nrpe
+./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu/  ### note this might be different for you  ###
+make all
+make install
+make install-plugin
+make install-daemon
+make install-daemon-config
+ls /usr/local/nagios/libexec
+echo
+updatedb
+locate nrpe
+locate nrpe.cfg
+echo NRPE Installed....
+
+
+
