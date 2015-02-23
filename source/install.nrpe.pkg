@@ -27,7 +27,7 @@ dpkg -i nagios-nrpe-plugin_2.12-5ubuntu1.2_amd64.deb
 #make install-daemon
 #make install-daemon-configi
 cd /tmp/nagios/source
-cp check_mem 
+cp check_mem /usr/lib/nagios/plugins/ 
 #cp nrpe_init.conf /etc/init/nrpe.conf
 #updatedb
 #locate nrpe
