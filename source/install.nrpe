@@ -3,6 +3,7 @@
 #       
 #       
 #cd /tmp/
+apt-get install libssl-dev -y
 echo installing NRPE
 git clone https://github.com/NagiosEnterprises/nrpe.git
 cd nrpe
