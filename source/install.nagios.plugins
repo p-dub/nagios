@@ -10,10 +10,10 @@ apt-get install build-essential automake libcap2 libmysqlclient18 libnet-snmp-pe
 sudo useradd nagios
 sudo groupadd nagcmd
 #cd /tmp/
-#wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
-#tar -xvzf nagios-plugins-2.0.3.tar.gz
-#cd nagios-plugins-2.0.3
-cd nagios.plugins
+wget http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
+tar -xvzf nagios-plugins-2.0.3.tar.gz
+cd nagios-plugins-2.0.3
+#cd nagios.plugins
 ./configure --with-nagios-user=nagios --with-nagios-group=nagios
 make
 make install
