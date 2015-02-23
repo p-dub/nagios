@@ -1,0 +1,35 @@
+#!/bin/bash
+#       This will install NRPE server
+#       
+#       
+#cd /tmp/
+echo installing NRPE
+echo "installing ssl libs & dependencies"
+apt-get install libssl-dev build-essential automake libcap2 libmysqlclient18 libnet-snmp-perl libperl5.14 libpq5 libradius1 libsensors4 libsnmp-base libreadonly-xs-perl libnagios-plugin-perl libsnmp15 libtalloc2 libtdb1 libwbclient0 mysql-common samba-common samba-common-bin smbclient snmp whois autoconf curl lynx-cur pkg-config -y
+cd /tmp
+wget http://launchpadlibrarian.net/144235104/nagios-plugins-standard_1.4.15-5ubuntu3.2_amd64.deb
+wget http://launchpadlibrarian.net/144235102/nagios-plugins-basic_1.4.15-5ubuntu3.2_amd64.deb
+wget http://launchpadlibrarian.net/141127021/nagios-nrpe-server_2.12-5ubuntu1.2_amd64.deb
+wget http://launchpadlibrarian.net/141127022/nagios-nrpe-plugin_2.12-5ubuntu1.2_amd64.deb
+dpkg -i nagios-plugins-basic_1.4.15-5ubuntu3.2_amd64.deb
+dpkg -i nagios-plugins-standard_1.4.15-5ubuntu3.2_amd64.deb
+updatedb
+locate nagios-plugins
+dpkg -i nagios-nrpe-server_2.12-5ubuntu1.2_amd64.deb
+dpkg -i nagios-nrpe-plugin_2.12-5ubuntu1.2_amd64.deb
+#apt-get install nagios
+#git clone https://github.com/NagiosEnterprises/nrpe.git
+#cd nrpe
+#./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu/  ### note this might be different for you  ###
+#make all
+#make install
+#make install-plugin
+#make install-daemon
+#make install-daemon-configi
+cd /tmp/nagios/source
+cp check_mem 
+#cp nrpe_init.conf /etc/init/nrpe.conf
+#updatedb
+#locate nrpe
+#locate nrpe.cfg
+echo NRPE Installed....
