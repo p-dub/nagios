@@ -3,31 +3,46 @@
 apt-get update
 apt-get install wget sendmail build-essential automake autoconf curl lynx-cur pkg-config apache2 php5 openssl perl make php5-gd wget libgd2-xpm-dev libapache2-mod-php5 libperl-dev libssl-dev daemon apache2-utils htop tcptrack debian-goodies libnagios-plugin-perl -y
 updatedb
+
+echo"dependencies intalled....adding users/groups...."
+sleep 15
 sudo useradd nagios
 sudo groupadd nagcmd
 sudo usermod -a -G nagcmd nagios
+echo "added...pulling nagios core"
+sleep 15
 cd /tmp
 #git clone https://github.com/NagiosEnterprises/nagioscore.git
 wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.0.8.tar.gz
+tar -xvzf nagios-4.0.8.tar.gz
 cd nagios-4.0.8/
 ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/sbin/sendmail
 make all
+echo "made!!! Now installing"
+sleep 15
 make install
+sleep 15
 make install-init
+sleep 15
 make install-config
+sleep 15
 make install-commandmode
+sleep 15
+echo "installing nagios web stuff"
 make install-webconf
-echo copying event handlers
+echo "copying event handlers"
 cp -rvf contrib/eventhandlers/ /usr/local/nagios/libexec/
 chown -R nagios:nagios /usr/local/nagios/libexec/eventhandlers
-echo copying init script
-cp ../init_script.conf /etc/init/nagios.conf  ### make that script
+echo "copying init script"
+cp /tmp/nagios/source/init_script.conf /etc/init/nagios.conf  ### make that script
+sleep 15
 a2enmod rewrite
 a2enmod cgi
 htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
 echo restarting apache
 service apache2 restart
-echo starting nagios....
+echo "starting nagios...."
+sleep 10
 service nagios start
 wait 10
 chmod 666 /usr/local/nagios/var/rw/nagios.cmd
